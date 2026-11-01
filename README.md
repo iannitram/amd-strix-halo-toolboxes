@@ -5,6 +5,17 @@ Pre-built `llama.cpp` containers for running LLMs with Vulkan or ROCm accelerati
 > [!IMPORTANT]
 > This repository is part of the **[Strix Halo AI Toolboxes](https://strix-halo-toolboxes.com/)** project. Follow the central guide for the recommended host setup, including unified-memory allocation and OS-specific configuration.
 
+## Workstation roadmap for this fork
+
+The accepted workstation direction and its build backlog are documented in:
+
+- [Roadmap](ROADMAP.md): five initiatives, delivery order and build dependencies.
+- [Specification](SPEC.md): functionality, user experience, data contracts and acceptance criteria.
+- [Code map](CODE_MAP.md): existing source, external Cockpit ownership and proposed modules.
+- [Build issues](https://github.com/iannitram/amd-strix-halo-toolboxes/issues): implementation work and verification requirements.
+
+These are planned capabilities; the current installation and launch workflows remain documented below.
+
 ## Recommended setup: AI Toolbox Cockpit
 
 [AI Toolbox Cockpit](https://github.com/kyuz0/ai-toolbox-cockpit) is the preferred way to install, launch, and update these toolboxes. It provides tested, pre-configured profiles; supports Toolbx and Distrobox; and can run supported servers directly with Podman or Docker, so Toolbx is not required.
