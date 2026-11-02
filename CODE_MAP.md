@@ -68,7 +68,7 @@ The `workstation/` package (Python 3.10+, standard library only at run time) and
 | `workstation/recipes/digests.py` | Turn an image tag into its exact digest by asking the registry, so a recipe never stores a moving tag alone. | R1 | #19 | stub | Mac, Windows, Linux |
 | `workstation/updates/states.py` | The table of update states and the moves allowed between them, used by the update transaction. | R2 | #20 | stub | Mac, Windows, Linux |
 | `workstation/updates/retention.py` | Decide which old images may be removed, never the active, previous or pinned ones. | R2 | #21 | stub | Mac, Windows, Linux |
-| `workstation/runtime/fake.py` | An in-memory `RuntimePort` that every default test uses instead of podman, with failures you can switch on per step. | R2 | #22 | stub | Mac, Windows, Linux |
+| `workstation/runtime/fake.py` | An in-memory `RuntimePort` that every default test uses instead of podman, with failures you can switch on per step. | R2 | #22 | present | Mac, Windows, Linux |
 | `workstation/updates/drain.py` | Wait until a server has no requests in flight, with a timeout, before the update switches it off. | R2 | #23 | stub | Mac, Windows, Linux |
 | `workstation/qualification/gates.py` | Turn the list of check results into one decision: passed, failed or unqualified. | R3 | #25 | stub | Mac, Windows, Linux |
 | `workstation/qualification/compare.py` | Compare the candidate's load time, time to first token and speeds with the current recipe's, against a threshold per metric. | R3 | #26 | stub | Mac, Windows, Linux |
