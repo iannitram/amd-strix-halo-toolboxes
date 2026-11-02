@@ -2,6 +2,7 @@
 
 Newest first. One line per change of stage, release or decision that the next session needs. Upstream's history is its git log.
 
+- 2026-11-02 Spec approved and moved to Roadmap. My rulings in the Project Manager session's question tool: "Adopt it, to Dev Loop (Recommended)" (the 2026-11-01 workstation plan is the spec, reshaped to the pipeline template), "First three are 1.0 (Recommended)" (1.0 = Time Machine, Will it fit?, Mission Control; Find my best setup and Combine my machines after 1.0), "Linux host, any browser (Recommended)", and "Approve all 15 (Recommended)" for the prior art.
 - 2026-11-02 Normalized to the pipeline: the RUBRIC labels created, PIPELINE.md at Spec, AGENTS.fork.md, CLAUDE.md and this file added.
 - 2026-11-01 Upstream has no licence file; I asked for one (kyuz0/amd-strix-halo-toolboxes#141). Until it has one, nothing from this fork is offered upstream or redistributed.
 - 2026-11-01 Workstation plan adopted: SPEC.md, ROADMAP.md, CODE_MAP.md and build issues #1-#13.
