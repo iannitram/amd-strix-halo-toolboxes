@@ -1,9 +1,73 @@
-"""Structured GGUF metadata from local files, over the existing estimator (P1). Planned: #30.
+"""Structured GGUF metadata from local files, reusing the existing estimator."""
 
-Wraps toolboxes/gguf-vram-estimator.py (loaded with importlib: its name has hyphens);
-that script's CLI stays exactly as it is.
-"""
+import importlib.util
+import re
+from pathlib import Path
+
+
+_ESTIMATOR_PATH = Path(__file__).resolve().parents[2] / "toolboxes" / "gguf-vram-estimator.py"
+_SPLIT_NAME = re.compile(r"-(\d{5})-of-(\d{5})\.gguf$", re.IGNORECASE)
+
+
+def _estimator():
+    spec = importlib.util.spec_from_file_location("gguf_vram_estimator", _ESTIMATOR_PATH)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load GGUF estimator at {_ESTIMATOR_PATH}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _shard_paths(path: Path) -> list[Path]:
+    match = _SPLIT_NAME.search(path.name)
+    if not match:
+        return [path]
+    prefix = path.name[:match.start()]
+    total = int(match.group(2))
+    expected = [
+        path.with_name(f"{prefix}-{index:05d}-of-{total:05d}.gguf")
+        for index in range(1, total + 1)
+    ]
+    return [shard for shard in expected if shard.is_file()]
 
 
 def read_local(path) -> dict:
-    raise NotImplementedError("TODO #30")
+    """Return GGUF architecture fields and byte sizes for a file and its shards."""
+    model_path = Path(path)
+    estimator = _estimator()
+    shard_paths = _shard_paths(model_path)
+    metadata = {}
+    for shard in shard_paths:
+        metadata.update(estimator.GGUFMetadataReader(str(shard)).read().metadata)
+
+    architecture = metadata.get("general.architecture")
+    prefix = f"{architecture}." if architecture else None
+
+    def field(suffix):
+        return metadata.get(prefix + suffix) if prefix else None
+
+    file_sizes = {str(shard): shard.stat().st_size for shard in shard_paths}
+    n_layers = field("block_count")
+    sliding_window = field("attention.sliding_window_size")
+    # Match the estimator's known Scout fallback and ordinary sliding-window rules.
+    if sliding_window:
+        sliding_layers, full_layers = n_layers, 0
+    elif "scout" in metadata.get("general.name", "").lower():
+        sliding_layers, full_layers, sliding_window = 36, 12, 8192
+    elif n_layers is not None:
+        sliding_layers, full_layers = 0, n_layers
+    else:
+        sliding_layers = full_layers = None
+
+    return {
+        "architecture": architecture,
+        "n_layers": n_layers,
+        "n_head_kv": field("attention.head_count_kv"),
+        "key_length": field("attention.key_length"),
+        "value_length": field("attention.value_length"),
+        "sliding_window_size": sliding_window,
+        "sliding_window_layers": sliding_layers,
+        "full_attention_layers": full_layers,
+        "file_sizes_bytes": file_sizes,
+        "total_size_bytes": sum(file_sizes.values()),
+    }
