@@ -47,45 +47,33 @@ def validate_recipe(recipe) -> list:
         ):
             errors.append("image.digest must look like sha256:<64 hex>")
 
-    def check_files(files, prefix):
-        if not isinstance(files, list) or not files:
-            errors.append(f"{prefix} must not be empty")
-            return
+    def check_file_items(files, prefix):
         for index, item in enumerate(files):
             item_prefix = f"{prefix}[{index}]"
-            if not isinstance(item, dict) or not item.get("name"):
+            fields = item if isinstance(item, dict) else {}
+            if not fields.get("name"):
                 errors.append(f"{item_prefix}.name missing")
-            sha256 = item.get("sha256") if isinstance(item, dict) else None
+            sha256 = fields.get("sha256")
             if not isinstance(sha256, str) or re.fullmatch(r"[0-9a-f]{64}", sha256) is None:
                 errors.append(f"{item_prefix}.sha256 must be 64 hex")
-            size = item.get("size_bytes") if isinstance(item, dict) else None
+            size = fields.get("size_bytes")
             if not isinstance(size, int) or isinstance(size, bool) or size < 0:
-                errors.append(
-                    f"{item_prefix}.size_bytes must be a non-negative integer"
-                )
+                errors.append(f"{item_prefix}.size_bytes must be a non-negative integer")
 
     model = recipe.get("model")
     model_files = model.get("files") if isinstance(model, dict) else None
     if model_files is not None and model_files != "":
-        check_files(model_files, "model.files")
+        if not isinstance(model_files, list) or not model_files:
+            errors.append("model.files must not be empty")
+        else:
+            check_file_items(model_files, "model.files")
 
     if "sidecars" in recipe:
         sidecars = recipe["sidecars"]
         if not isinstance(sidecars, list):
             errors.append("sidecars must be a list")
         else:
-            for index, item in enumerate(sidecars):
-                item_prefix = f"sidecars[{index}]"
-                if not isinstance(item, dict) or not item.get("name"):
-                    errors.append(f"{item_prefix}.name missing")
-                sha256 = item.get("sha256") if isinstance(item, dict) else None
-                if not isinstance(sha256, str) or re.fullmatch(r"[0-9a-f]{64}", sha256) is None:
-                    errors.append(f"{item_prefix}.sha256 must be 64 hex")
-                size = item.get("size_bytes") if isinstance(item, dict) else None
-                if not isinstance(size, int) or isinstance(size, bool) or size < 0:
-                    errors.append(
-                        f"{item_prefix}.size_bytes must be a non-negative integer"
-                    )
+            check_file_items(sidecars, "sidecars")
 
     launch = recipe.get("launch")
     if isinstance(launch, dict):
