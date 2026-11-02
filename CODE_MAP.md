@@ -69,7 +69,7 @@ The `workstation/` package (Python 3.10+, standard library only at run time) and
 | `workstation/updates/states.py` | The table of update states and the moves allowed between them, used by the update transaction. | R2 | #20 | stub | Mac, Windows, Linux |
 | `workstation/updates/retention.py` | Decide which old images may be removed, never the active, previous or pinned ones. | R2 | #21 | stub | Mac, Windows, Linux |
 | `workstation/runtime/fake.py` | An in-memory `RuntimePort` that every default test uses instead of podman, with failures you can switch on per step. | R2 | #22 | present | Mac, Windows, Linux |
-| `workstation/updates/drain.py` | Wait until a server has no requests in flight, with a timeout, before the update switches it off. | R2 | #23 | stub | Mac, Windows, Linux |
+| `workstation/updates/drain.py` | Wait until a server has no requests in flight, with a timeout, before the update switches it off. | R2 | #23 | present | Mac, Windows, Linux |
 | `workstation/qualification/gates.py` | Turn the list of check results into one decision: passed, failed or unqualified. | R3 | #25 | stub | Mac, Windows, Linux |
 | `workstation/qualification/compare.py` | Compare the candidate's load time, time to first token and speeds with the current recipe's, against a threshold per metric. | R3 | #26 | stub | Mac, Windows, Linux |
 | `workstation/planning/memory.py` | Work out the KV cache size for a model and context, and add it to weights and reserves against the one shared memory total. | P1 | #27 | stub | Mac, Windows, Linux |
