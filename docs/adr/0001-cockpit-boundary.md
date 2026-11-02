@@ -20,6 +20,7 @@ How it is done:
 
 - **One adapter.** All Cockpit access goes through one workstation port (a `CockpitPort` beside `RuntimePort`). The real adapter is the only code that knows Cockpit's module names, catalog file or command-line surface. Everything else sees plain data: the catalog entries, a validation result, and a command to run.
 - **No copied code.** Cockpit has no licence, so its code is never copied, vendored or redistributed here (SPEC.md: "no copy of its code while it has no licence"). The adapter calls a Cockpit the user has installed separately. It does not bundle one.
+- **Ideas only.** The one thing we take from Cockpit is the idea of its launch-and-monitor UI, which SPEC.md names as the base Mission Control grows from. No Cockpit code, text, layout or assets are copied, and the page is written from scratch.
 - **Pinned version.** The adapter records the adapter version and the Cockpit version it supports. On any other Cockpit version it reports "unsupported Cockpit version" and does not guess.
 - **Testable without Cockpit.** Default tests use a fake `CockpitPort`. Tests of the real adapter are Linux-only and opt-in.
 - **No upstream changes.** Cockpit is not modified. If the adapter needs something Cockpit does not offer, that becomes an issue for the owner to raise upstream, not a patch.
