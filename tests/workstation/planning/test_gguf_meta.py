@@ -2,6 +2,8 @@
 
 import struct
 
+import pytest
+
 from workstation.planning.gguf_meta import read_local
 
 
@@ -66,3 +68,20 @@ def test_read_local_combines_sizes_from_all_split_shards(tmp_path):
         str(second): second.stat().st_size,
     }
     assert result["total_size_bytes"] == first.stat().st_size + second.stat().st_size
+
+
+def test_truncated_and_oversized_files_raise_clean_errors(tmp_path):
+    header = struct.pack("<IIQQ", 0x46554747, 3, 0, 1)
+    empty = tmp_path / "empty.gguf"
+    empty.write_bytes(b"")
+    truncated = tmp_path / "truncated.gguf"
+    truncated.write_bytes(header + struct.pack("<Q", 12) + b"general.arch")
+    oversized = tmp_path / "oversized.gguf"
+    oversized.write_bytes(header + struct.pack("<Q", 2**40) + b"general.architecture")
+
+    with pytest.raises(ValueError, match="truncated"):
+        read_local(empty)
+    with pytest.raises(ValueError, match="truncated"):
+        read_local(truncated)
+    with pytest.raises(ValueError, match="past the end of the file"):
+        read_local(oversized)

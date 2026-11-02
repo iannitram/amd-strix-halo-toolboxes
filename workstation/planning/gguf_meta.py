@@ -1,7 +1,9 @@
 """Structured GGUF metadata from local files, reusing the existing estimator."""
 
 import importlib.util
+import os
 import re
+import struct
 from pathlib import Path
 
 
@@ -16,6 +18,26 @@ def _estimator():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def _bounded_reader(estimator):
+    """The estimator's reader, except a string longer than the rest of the file is an error.
+
+    Without this check a malformed length header asks for a huge allocation before any read fails.
+    """
+
+    class BoundedReader(estimator.GGUFMetadataReader):
+        def _read_string(self) -> str:
+            header = self.f.read(8)
+            if len(header) != 8:
+                raise ValueError("truncated GGUF string header")
+            (length,) = struct.unpack("<Q", header)
+            remaining = os.fstat(self.f.fileno()).st_size - self.f.tell()
+            if length > remaining:
+                raise ValueError("GGUF string runs past the end of the file")
+            return self.f.read(length).decode("utf-8", errors="replace")
+
+    return BoundedReader
 
 
 def _shard_paths(path: Path) -> list[Path]:
@@ -34,11 +56,14 @@ def _shard_paths(path: Path) -> list[Path]:
 def read_local(path) -> dict:
     """Return GGUF architecture fields and byte sizes for a file and its shards."""
     model_path = Path(path)
-    estimator = _estimator()
+    reader_class = _bounded_reader(_estimator())
     shard_paths = _shard_paths(model_path)
     metadata = {}
     for shard in shard_paths:
-        metadata.update(estimator.GGUFMetadataReader(str(shard)).read().metadata)
+        try:
+            metadata.update(reader_class(str(shard)).read().metadata)
+        except (struct.error, ValueError) as exc:
+            raise ValueError(f"Malformed or truncated GGUF file {shard}: {exc}") from exc
 
     architecture = metadata.get("general.architecture")
     prefix = f"{architecture}." if architecture else None
