@@ -7,6 +7,8 @@ Shape (SPEC.md, Shared data contracts, Recipe):
     launch{ctx_size, parallel?, flash_attn?, no_mmap?, extra?}, constraints?, qualification?
 """
 
+import re
+
 SCHEMA_VERSION = 1
 SUPPORTED_VERSIONS = (1,)
 REQUIRED_FIELDS = (
@@ -18,4 +20,87 @@ REQUIRED_FIELDS = (
 
 def validate_recipe(recipe) -> list:
     """Return every problem with ``recipe`` as strings, in a fixed order; [] when valid."""
-    raise NotImplementedError("TODO #17")
+    if not isinstance(recipe, dict):
+        return ["recipe must be an object"]
+
+    version = recipe.get("schema_version")
+    if "schema_version" in recipe and version not in SUPPORTED_VERSIONS:
+        return [f"unsupported schema_version: {version}"]
+
+    errors = []
+    for path in REQUIRED_FIELDS:
+        value = recipe
+        for part in path.split("."):
+            if not isinstance(value, dict) or part not in value:
+                value = None
+                break
+            value = value[part]
+        if value is None or value == "":
+            errors.append(f"missing field: {path}")
+
+    image = recipe.get("image")
+    if isinstance(image, dict):
+        digest = image.get("digest")
+        if digest not in (None, "") and (
+            not isinstance(digest, str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", digest) is None
+        ):
+            errors.append("image.digest must look like sha256:<64 hex>")
+
+    def check_files(files, prefix):
+        if not isinstance(files, list) or not files:
+            errors.append(f"{prefix} must not be empty")
+            return
+        for index, item in enumerate(files):
+            item_prefix = f"{prefix}[{index}]"
+            if not isinstance(item, dict) or not item.get("name"):
+                errors.append(f"{item_prefix}.name missing")
+            sha256 = item.get("sha256") if isinstance(item, dict) else None
+            if not isinstance(sha256, str) or re.fullmatch(r"[0-9a-f]{64}", sha256) is None:
+                errors.append(f"{item_prefix}.sha256 must be 64 hex")
+            size = item.get("size_bytes") if isinstance(item, dict) else None
+            if not isinstance(size, int) or isinstance(size, bool) or size < 0:
+                errors.append(
+                    f"{item_prefix}.size_bytes must be a non-negative integer"
+                )
+
+    model = recipe.get("model")
+    model_files = model.get("files") if isinstance(model, dict) else None
+    if model_files is not None and model_files != "":
+        check_files(model_files, "model.files")
+
+    if "sidecars" in recipe:
+        sidecars = recipe["sidecars"]
+        if not isinstance(sidecars, list):
+            errors.append("sidecars must be a list")
+        else:
+            for index, item in enumerate(sidecars):
+                item_prefix = f"sidecars[{index}]"
+                if not isinstance(item, dict) or not item.get("name"):
+                    errors.append(f"{item_prefix}.name missing")
+                sha256 = item.get("sha256") if isinstance(item, dict) else None
+                if not isinstance(sha256, str) or re.fullmatch(r"[0-9a-f]{64}", sha256) is None:
+                    errors.append(f"{item_prefix}.sha256 must be 64 hex")
+                size = item.get("size_bytes") if isinstance(item, dict) else None
+                if not isinstance(size, int) or isinstance(size, bool) or size < 0:
+                    errors.append(
+                        f"{item_prefix}.size_bytes must be a non-negative integer"
+                    )
+
+    launch = recipe.get("launch")
+    if isinstance(launch, dict):
+        for field in ("ctx_size", "parallel"):
+            if field not in launch:
+                continue
+            value = launch[field]
+            if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+                errors.append(f"launch.{field} must be a positive integer")
+
+    identifier = recipe.get("id")
+    if identifier is not None and (
+        not isinstance(identifier, str)
+        or re.fullmatch(r"rcp-[0-9a-f]{16}", identifier) is None
+    ):
+        errors.append("id must look like rcp-<16 hex>")
+
+    return errors
