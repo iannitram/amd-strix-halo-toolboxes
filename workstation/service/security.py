@@ -48,6 +48,6 @@ def check_request(method, headers, *, csrf_token, allowed_hosts=DEFAULT_ALLOWED_
         return "cross-site request"
 
     token = normalized_headers.get("x-csrf-token")
-    if token is None or not hmac.compare_digest(token, csrf_token):
+    if token is None or not hmac.compare_digest(token.encode("utf-8"), csrf_token.encode("utf-8")):
         return "bad csrf token"
     return None
