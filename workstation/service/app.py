@@ -210,7 +210,8 @@ class _Handler(BaseHTTPRequestHandler):
 
     def _events(self, query):
         try:
-            values = parse_qs(query, strict_parsing=True)
+            # Python 3.10 rejects an empty query when strict parsing is enabled.
+            values = parse_qs(query, strict_parsing=True) if query else {}
             raw = values.get("since", [self.headers.get("Last-Event-ID", "0")])
             if set(values) - {"since"} or len(raw) != 1:
                 raise ValueError()
