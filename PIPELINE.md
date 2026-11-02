@@ -1,4 +1,4 @@
-Stage: Roadmap
+Stage: Dev Loop
 Since: 2026-11-02
 Kind: fork (upstream: kyuz0/amd-strix-halo-toolboxes)
 Spec: SPEC.md   Roadmap: ROADMAP.md   Code map: CODE_MAP.md

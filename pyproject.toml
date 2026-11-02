@@ -1,0 +1,21 @@
+[project]
+name = "strix-halo-workstation"
+version = "0.0.0"
+description = "Local AI workstation for the Strix Halo toolboxes (our fork's addition)."
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/workstation"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+include = ["workstation/**/*.py", "tests/**/*.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B"]

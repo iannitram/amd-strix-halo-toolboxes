@@ -1,6 +1,6 @@
 # Code map
 
-Updated: 2026-11-01 (America/Denver).
+Updated: 2026-11-02 (America/Denver).
 Current inventory inspected at commit `e6910c177ed7a1c8f9b29a06c0ca3627bec932fa`.
 Product requirements: [SPEC.md](SPEC.md). Delivery sequence: [ROADMAP.md](ROADMAP.md).
 
@@ -42,30 +42,61 @@ External repository: [kyuz0/ai-toolbox-cockpit](https://github.com/kyuz0/ai-tool
 
 M1 owns the versioned integration design. No public stable runtime API is assumed. New Cockpit patches require a reviewed contribution or an explicitly adopted companion strategy. Avoid coupling new code to the older `src.*` campaign imports.
 
-## 3. Proposed module boundaries — NOT IMPLEMENTED
+## 3. Module map
 
-These names are architectural responsibilities, not existing directories or guaranteed final filenames. M1 decides packaging and repository placement. Build PRs must replace proposed entries with actual paths as code lands.
+The `workstation/` package (Python 3.10+, standard library only at run time) and its tests. Every stub raises `NotImplementedError("TODO #N")` with its issue number; the skeleton test imports them all, so `python -m pytest -q` runs green from day one. Status is `present` (done), `partial`, `stub` (signature only) or `planned` (no file yet). Build PRs update this table as code lands.
 
-| Proposed module | Responsibility and dependencies | Build ownership |
-| --- | --- | --- |
-| `recipes` | Versioned recipes, identities, migrations, validation, redacted import/export. | [#1](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/1) |
-| `updates` | Candidate/current/previous transaction, artifact retention, promotion and restoration. Uses recipes and runtime adapter. | [#2](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/2) |
-| `qualification` | Recorded readiness/inference/regression gates and reproduction export. Uses recipes/updates. | [#3](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/3) |
-| `planning` | Structured metadata/resource estimates, reserves, storage and alternatives. Adapts existing GGUF estimator. | [#4](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/4) |
-| `ui/planner` | Interactive pre-download memory/disk workbench. Consumes planning results. | [#5](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/5) |
-| `runtime_adapter`, `local_service` | Versioned Cockpit/backend boundary, operation/event API, auth/origin validation, cancellation. | [#6](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/6) |
-| `ui/mission_control` | Outcome journeys, status, advanced inspector and local test conversation. | [#7](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/7) |
-| `connections` | Client settings, bounded connection checks and optional stable endpoint. | [#8](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/8) |
-| `tournaments` | Budgeted isolated workloads, sampling, cleanup and versioned results. | [#9](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/9) |
-| `ui/comparisons` | Explained tradeoffs, curves/tables, recommendation/save/export. | [#10](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/10) |
-| `cluster/inventory` | Explicit node enrollment, trust, compatibility and measured links. | [#11](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/11) |
-| `cluster/placement` | Capacity/latency/concurrency alternatives constrained by backend support. | [#12](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/12) |
-| `cluster/sessions`, `ui/topology` | Session-owned RPC lifecycle, partial-failure cleanup and canvas/table. | [#13](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/13) |
+| Path | Responsibility | ID | Issue | Status | Platforms |
+| --- | --- | --- | --- | --- | --- |
+| `workstation/__init__.py` | Package marker and `__version__`. | - | - | present | Mac, Windows, Linux |
+| `workstation/errors.py` | `WorkstationError`, `RecipeError(errors)`, `InvalidTransition`, `Refused`. | - | - | present | Mac, Windows, Linux |
+| `workstation/runtime/port.py` | `RuntimePort` protocol: devices, pull, create, remove, start_server, stop_server, health, active_requests, list_models, complete. | M1 | #22, #34 | present | Mac, Windows, Linux |
+| `workstation/__main__.py` | `python -m workstation`: `--help` works; `serve` (#6) and `update`/`restore` (#24) to come. | M1, R2 | #6, #24 | partial | Mac, Windows, Linux (update: Linux) |
+| `workstation/recipes/migrate.py` | Schema migration steps up to `SCHEMA_VERSION`. | R1 | #1 | stub | Mac, Windows, Linux |
+| `workstation/recipes/store.py` | Recipe files under a data folder: save, load, load_by_name, list. | R1 | #1 | stub | Mac, Windows, Linux |
+| `workstation/updates/transaction.py` | Stage, promote and restore. | R2 | #2 | stub | Mac, Windows, Linux |
+| `workstation/qualification/runner.py` | Run the checks and decide. | R3 | #3 | stub | Mac, Windows, Linux |
+| `workstation/qualification/manifest.py` | Redacted reproduction manifest. | R3 | #3 | stub | Mac, Windows, Linux |
+| `workstation/planning/planner.py` | One explained plan and supported alternatives. | P1 | #4 | stub | Mac, Windows, Linux |
+| `workstation/service/app.py` | Local HTTP service, page and JSON API. | M1 | #6, #37, #42 | stub | Mac, Windows, Linux |
+| `workstation/web/` | Mission Control page: `index.html`, `styles.css`, `app.js`, no build step. | M2, P2, M3, R2 | #38, #5, #7, #8, #40, #41, #42, #46 | stub | browsers on Mac, Windows, Linux |
+| `tests/workstation/test_skeleton.py` | Imports every module, checks the page files and the estimator CLI. | - | - | present | Mac, Windows, Linux |
+| `workstation/redact.py` | A pure function that returns a copy of any JSON-like data with credentials, private prompts and personal home paths taken out. Recipe export, manifests and copied diagnostics all use it. | R1 | #15 | stub | Mac, Windows, Linux |
+| `workstation/recipes/identity.py` | A stable recipe ID worked out from what the recipe runs, so the same setup always gets the same ID on any host. | R1 | #16 | stub | Mac, Windows, Linux |
+| `workstation/recipes/schema.py` | Check a recipe against schema version 1 and list every problem in a fixed order. | R1 | #17 | stub | Mac, Windows, Linux |
+| `workstation/recipes/io.py` | Export a recipe as fixed, redacted JSON text and import it back with every check, so a recipe can move between hosts byte for byte. | R1 | #18 | stub | Mac, Windows, Linux |
+| `workstation/recipes/digests.py` | Turn an image tag into its exact digest by asking the registry, so a recipe never stores a moving tag alone. | R1 | #19 | stub | Mac, Windows, Linux |
+| `workstation/updates/states.py` | The table of update states and the moves allowed between them, used by the update transaction. | R2 | #20 | stub | Mac, Windows, Linux |
+| `workstation/updates/retention.py` | Decide which old images may be removed, never the active, previous or pinned ones. | R2 | #21 | stub | Mac, Windows, Linux |
+| `workstation/runtime/fake.py` | An in-memory `RuntimePort` that every default test uses instead of podman, with failures you can switch on per step. | R2 | #22 | stub | Mac, Windows, Linux |
+| `workstation/updates/drain.py` | Wait until a server has no requests in flight, with a timeout, before the update switches it off. | R2 | #23 | stub | Mac, Windows, Linux |
+| `workstation/qualification/gates.py` | Turn the list of check results into one decision: passed, failed or unqualified. | R3 | #25 | stub | Mac, Windows, Linux |
+| `workstation/qualification/compare.py` | Compare the candidate's load time, time to first token and speeds with the current recipe's, against a threshold per metric. | R3 | #26 | stub | Mac, Windows, Linux |
+| `workstation/planning/memory.py` | Work out the KV cache size for a model and context, and add it to weights and reserves against the one shared memory total. | P1 | #27 | stub | Mac, Windows, Linux |
+| `workstation/planning/disk.py` | Spot missing pieces of a split model and work out the download, temporary and cache space against free disk. | P1 | #28 | stub | Mac, Windows, Linux |
+| `workstation/planning/labels.py` | Label each number the planner shows, so the page can say how sure it is. | P1 | #29 | stub | Mac, Windows, Linux |
+| `workstation/planning/gguf_meta.py` | Read a local GGUF file's architecture, layer, head and size metadata as a dict, reusing `toolboxes/gguf-vram-estimator.py` without changing its command line. | P1 | #30 | stub | Mac, Windows, Linux |
+| `workstation/planning/remote_meta.py` | Read a remote GGUF file's header with HTTP range requests, so Will it fit? can answer before anything is downloaded. | P1 | #31 | stub | Mac, Windows, Linux |
+| `workstation/host/snapshot.py` | Record the host facts that matter for a recipe: kernel, firmware, GPU device nodes, memory total and free, disk free, and toolbox and podman versions. | R3 | #32 | stub | Linux |
+| `workstation/runtime/podman.py` | The real `RuntimePort`: pull images, create and remove toolbox containers, start and stop llama-server, and read its health, with `/dev/kfd` and `/dev/dri` passed through. | M1 | #34 | stub | Linux |
+| `workstation/service/security.py` | Check each request's Host, Origin, Sec-Fetch-Site and CSRF token, so another web site or host name cannot drive the service. | M1 | #35 | stub | Mac, Windows, Linux |
+| `workstation/service/operations.py` | Keep each long job's id, state, progress and events, and let the page cancel it. | M1 | #36 | stub | Mac, Windows, Linux |
+| `workstation/web/index.html` | The page shell every view sits in: navigation, colour and spacing tokens for light and dark, and shared loading, empty, error and success states. No build step. | M2 | #38 | stub | Mac, Windows, Linux |
+| `workstation/connections/snippets.py` | Copyable env, curl and Python settings for a coding client, with the key's variable name and never its value. | M3 | #43 | stub | Mac, Windows, Linux |
+| `workstation/connections/check.py` | Check that a client can list models and get a short completion from the endpoint, and say which step failed. | M3 | #44 | stub | Mac, Windows, Linux |
+| `workstation/connections/endpoint.py` | One fixed local port that always forwards to whichever recipe is active, so a client keeps its settings across updates. | M3 | #45 | stub | Mac, Windows, Linux |
+| `docs/adr/0001-cockpit-boundary.md` | Cockpit boundary decision. | M1 | #33 | planned | - |
+| `tests/browser/` | Playwright journeys in Chromium, Firefox and WebKit. | M2 | #39 | planned | Mac, Windows, Linux |
+| `docs/workstation/host-runs/` | Dated records of host runs. | 1.0 | #47 | planned | Linux |
+
+Tests mirror the package: `tests/workstation/<area>/test_<module>.py`. Prove it with `python -m pytest -q` and `python -m ruff check workstation tests`; CI runs both on ubuntu, windows and macos.
+
+After 1.0, not mapped yet: tournaments (#9, #10) and cluster (#11 to #13).
 
 ## 4. Intended data flow
 
 ```text
-Cockpit TUI or proposed browser workspace
+Cockpit TUI or the Mission Control page (workstation/web)
   -> versioned local service/runtime adapter
      -> catalog + backend-owned validation/command generation
      -> recipes -> resource planning -> explicit launch
