@@ -65,7 +65,7 @@ The `workstation/` package (Python 3.10+, standard library only at run time) and
 | `workstation/recipes/identity.py` | A stable recipe ID worked out from what the recipe runs, so the same setup always gets the same ID on any host. | R1 | #16 | stub | Mac, Windows, Linux |
 | `workstation/recipes/schema.py` | Check a recipe against schema version 1 and list every problem in a fixed order. | R1 | #17 | stub | Mac, Windows, Linux |
 | `workstation/recipes/io.py` | Export a recipe as fixed, redacted JSON text and import it back with every check, so a recipe can move between hosts byte for byte. | R1 | #18 | stub | Mac, Windows, Linux |
-| `workstation/recipes/digests.py` | Turn an image tag into its exact digest by asking the registry, so a recipe never stores a moving tag alone. | R1 | #19 | stub | Mac, Windows, Linux |
+| `workstation/recipes/digests.py` | Turn an image tag into its exact digest by asking the registry, so a recipe never stores a moving tag alone. | R1 | #19 | present | Mac, Windows, Linux |
 | `workstation/updates/states.py` | The table of update states and the moves allowed between them, used by the update transaction. | R2 | #20 | stub | Mac, Windows, Linux |
 | `workstation/updates/retention.py` | Decide which old images may be removed, never the active, previous or pinned ones. | R2 | #21 | stub | Mac, Windows, Linux |
 | `workstation/runtime/fake.py` | An in-memory `RuntimePort` that every default test uses instead of podman, with failures you can switch on per step. | R2 | #22 | stub | Mac, Windows, Linux |
