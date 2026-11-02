@@ -75,7 +75,7 @@ The `workstation/` package (Python 3.10+, standard library only at run time) and
 | `workstation/planning/memory.py` | Work out the KV cache size for a model and context, and add it to weights and reserves against the one shared memory total. | P1 | #27 | stub | Mac, Windows, Linux |
 | `workstation/planning/disk.py` | Spot missing pieces of a split model and work out the download, temporary and cache space against free disk. | P1 | #28 | stub | Mac, Windows, Linux |
 | `workstation/planning/labels.py` | Label each number the planner shows, so the page can say how sure it is. | P1 | #29 | stub | Mac, Windows, Linux |
-| `workstation/planning/gguf_meta.py` | Read a local GGUF file's architecture, layer, head and size metadata as a dict, reusing `toolboxes/gguf-vram-estimator.py` without changing its command line. | P1 | #30 | stub | Mac, Windows, Linux |
+| `workstation/planning/gguf_meta.py` | Read a local GGUF file's architecture, layer, head and size metadata as a dict, reusing `toolboxes/gguf-vram-estimator.py` without changing its command line. | P1 | #30 | present | Mac, Windows, Linux |
 | `workstation/planning/remote_meta.py` | Read a remote GGUF file's header with HTTP range requests, so Will it fit? can answer before anything is downloaded. | P1 | #31 | stub | Mac, Windows, Linux |
 | `workstation/host/snapshot.py` | Record the host facts that matter for a recipe: kernel, firmware, GPU device nodes, memory total and free, disk free, and toolbox and podman versions. | R3 | #32 | present | Linux |
 | `workstation/runtime/podman.py` | The real `RuntimePort`: pull images, create and remove toolbox containers, start and stop llama-server, and read its health, with `/dev/kfd` and `/dev/dri` passed through. | M1 | #34 | stub | Linux |
