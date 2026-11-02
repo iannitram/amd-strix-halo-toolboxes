@@ -114,3 +114,40 @@ def test_skips_64bit_values_before_the_fields_it_reads(tmp_path):
     )
 
     assert read_local(model)["n_layers"] == 7
+
+
+def test_skips_nested_and_string_arrays_and_rejects_bad_arrays(tmp_path):
+    header = struct.pack("<IIQQ", 0x46554747, 3, 0, 4)
+    fields = (
+        _string("general.architecture") + struct.pack("<I", 8) + _string("llama")
+        + _string("llama.block_count") + struct.pack("<II", 4, 7)
+    )
+    nested = tmp_path / "nested.gguf"
+    nested.write_bytes(
+        header
+        + _string("tokenizer.tokens") + struct.pack("<IIQ", 9, 8, 2) + _string("ab") + _string("c")
+        + _string("x.pairs") + struct.pack("<IIQ", 9, 9, 1) + struct.pack("<IQ", 4, 2)
+        + struct.pack("<II", 1, 2)
+        + fields
+    )
+    unknown_item = tmp_path / "unknown-item.gguf"
+    unknown_item.write_bytes(
+        struct.pack("<IIQQ", 0x46554747, 3, 0, 1) + _string("x") + struct.pack("<IIQ", 9, 99, 1)
+    )
+    skip_past_end = tmp_path / "skip-past-end.gguf"
+    skip_past_end.write_bytes(
+        struct.pack("<IIQQ", 0x46554747, 3, 0, 1) + _string("x") + struct.pack("<IIQ", 9, 0, 2**63)
+    )
+    deep = tmp_path / "deep.gguf"
+    deep.write_bytes(
+        struct.pack("<IIQQ", 0x46554747, 3, 0, 1) + _string("x") + struct.pack("<I", 9)
+        + struct.pack("<IQ", 9, 1) * 100 + struct.pack("<IQ", 0, 0)
+    )
+
+    assert read_local(nested)["n_layers"] == 7
+    with pytest.raises(ValueError, match="unknown GGUF array item type"):
+        read_local(unknown_item)
+    with pytest.raises(ValueError, match="past the end of the file"):
+        read_local(skip_past_end)
+    with pytest.raises(ValueError, match="nested too deeply"):
+        read_local(deep)
