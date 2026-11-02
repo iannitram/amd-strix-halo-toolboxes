@@ -2,7 +2,7 @@
 
 Updated: 2026-11-01 (America/Denver).
 Status: accepted product direction; proposed implementation.
-Scope: Ian's AMD Strix Halo toolbox fork and its explicitly defined Cockpit integration.
+Scope: my AMD Strix Halo toolbox fork and its explicitly defined Cockpit integration.
 
 ## 1. Problem and intended outcome
 

@@ -1,6 +1,6 @@
 # Workstation roadmap
 
-Updated: 2026-11-01 (America/Denver). Product direction accepted by Ian; implementation has not started.
+Updated: 2026-11-01 (America/Denver). Product direction accepted by me; implementation has not started.
 
 ## Product direction
 

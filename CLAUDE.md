@@ -1,0 +1,1 @@
+Read `AGENTS.fork.md` and follow it. It holds the rules for our fork for every agent. `AGENTS.md` is upstream's context on the toolboxes themselves; read it too when you touch `toolboxes/`, `benchmark/` or the workflows.
