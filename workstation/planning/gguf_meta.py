@@ -106,16 +106,21 @@ def read_local(path) -> dict:
         except (struct.error, ValueError) as exc:
             raise ValueError(f"Malformed or truncated GGUF file {shard}: {exc}") from exc
 
+    file_sizes = {str(shard): shard.stat().st_size for shard in shard_paths}
+    return _metadata_result(metadata, file_sizes)
+
+
+def _metadata_result(metadata: dict, file_sizes: dict[str, int]) -> dict:
+    """Keep the local and remote planners' metadata fields identical."""
     architecture = metadata.get("general.architecture")
     name = metadata.get("general.name", "")
     if not isinstance(architecture, (str, type(None))) or not isinstance(name, str):
-        raise ValueError(f"Malformed GGUF file {model_path}: architecture and name must be strings")
+        raise ValueError("Malformed GGUF metadata: architecture and name must be strings")
     prefix = f"{architecture}." if architecture else None
 
     def field(suffix):
         return metadata.get(prefix + suffix) if prefix else None
 
-    file_sizes = {str(shard): shard.stat().st_size for shard in shard_paths}
     n_layers = field("block_count")
     sliding_window = field("attention.sliding_window_size")
     # Match the estimator's known Scout fallback and ordinary sliding-window rules.

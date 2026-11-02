@@ -57,7 +57,7 @@ The `workstation/` package (Python 3.10+, standard library only at run time) and
 | `workstation/updates/transaction.py` | Stage, promote and restore. | R2 | #2 | stub | Mac, Windows, Linux |
 | `workstation/qualification/runner.py` | Run the checks and decide. | R3 | #3 | stub | Mac, Windows, Linux |
 | `workstation/qualification/manifest.py` | Redacted reproduction manifest. | R3 | #3 | stub | Mac, Windows, Linux |
-| `workstation/planning/planner.py` | One explained plan and supported alternatives. | P1 | #4 | stub | Mac, Windows, Linux |
+| `workstation/planning/planner.py` | One explained plan and supported alternatives. | P1 | #4 | present | Mac, Windows, Linux |
 | `workstation/service/app.py` | Local HTTP service, page/CSRF bootstrap, JSON jobs, SSE replay and cooperative cancellation (#6). Domain routes #37/#42 to come. | M1 | #6, #37, #42 | present | Mac, Windows, Linux |
 | `workstation/web/` | Mission Control page: `index.html`, `styles.css`, `app.js`, no build step. | M2, P2, M3, R2 | #38, #5, #7, #8, #40, #41, #42, #46 | stub | browsers on Mac, Windows, Linux |
 | `tests/workstation/test_skeleton.py` | Imports every module, checks the page files and the estimator CLI. | - | - | present | Mac, Windows, Linux |
@@ -76,7 +76,7 @@ The `workstation/` package (Python 3.10+, standard library only at run time) and
 | `workstation/planning/disk.py` | Spot missing pieces of a split model and work out the download, temporary and cache space against free disk. | P1 | #28 | stub | Mac, Windows, Linux |
 | `workstation/planning/labels.py` | Label each number the planner shows, so the page can say how sure it is. | P1 | #29 | stub | Mac, Windows, Linux |
 | `workstation/planning/gguf_meta.py` | Read a local GGUF file's architecture, layer, head and size metadata as a dict, reusing `toolboxes/gguf-vram-estimator.py` without changing its command line. | P1 | #30 | present | Mac, Windows, Linux |
-| `workstation/planning/remote_meta.py` | Read a remote GGUF file's header with HTTP range requests, so Will it fit? can answer before anything is downloaded. | P1 | #31 | stub | Mac, Windows, Linux |
+| `workstation/planning/remote_meta.py` | Read a remote GGUF file's header with HTTP range requests, so Will it fit? can answer before anything is downloaded. | P1 | #31 | present | Mac, Windows, Linux |
 | `workstation/host/snapshot.py` | Record the host facts that matter for a recipe: kernel, firmware, GPU device nodes, memory total and free, disk free, and toolbox and podman versions. | R3 | #32 | present | Linux |
 | `workstation/runtime/podman.py` | The real `RuntimePort`: pull images, create and remove toolbox containers, start and stop llama-server, and read its health, with `/dev/kfd` and `/dev/dri` passed through. | M1 | #34 | stub | Linux |
 | `workstation/service/security.py` | Check each request's Host, Origin, Sec-Fetch-Site and CSRF token, so another web site or host name cannot drive the service. | M1 | #35 | stub | Mac, Windows, Linux |
