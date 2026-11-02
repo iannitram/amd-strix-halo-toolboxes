@@ -51,14 +51,14 @@ The `workstation/` package (Python 3.10+, standard library only at run time) and
 | `workstation/__init__.py` | Package marker and `__version__`. | - | - | present | Mac, Windows, Linux |
 | `workstation/errors.py` | `WorkstationError`, `RecipeError(errors)`, `InvalidTransition`, `Refused`. | - | - | present | Mac, Windows, Linux |
 | `workstation/runtime/port.py` | `RuntimePort` protocol: devices, pull, create, remove, start_server, stop_server, health, active_requests, list_models, complete. | M1 | #22, #34 | present | Mac, Windows, Linux |
-| `workstation/__main__.py` | `python -m workstation`: `--help` works; `serve` (#6) and `update`/`restore` (#24) to come. | M1, R2 | #6, #24 | partial | Mac, Windows, Linux (update: Linux) |
+| `workstation/__main__.py` | `python -m workstation`: `--help` and `serve --fake` work; `update`/`restore` (#24) to come. | M1, R2 | #6, #24 | partial | Mac, Windows, Linux (update: Linux) |
 | `workstation/recipes/migrate.py` | Schema migration steps up to `SCHEMA_VERSION`. | R1 | #1 | stub | Mac, Windows, Linux |
 | `workstation/recipes/store.py` | Recipe files under a data folder: save, load, load_by_name, list. | R1 | #1 | stub | Mac, Windows, Linux |
 | `workstation/updates/transaction.py` | Stage, promote and restore. | R2 | #2 | stub | Mac, Windows, Linux |
 | `workstation/qualification/runner.py` | Run the checks and decide. | R3 | #3 | stub | Mac, Windows, Linux |
 | `workstation/qualification/manifest.py` | Redacted reproduction manifest. | R3 | #3 | stub | Mac, Windows, Linux |
 | `workstation/planning/planner.py` | One explained plan and supported alternatives. | P1 | #4 | present | Mac, Windows, Linux |
-| `workstation/service/app.py` | Local HTTP service, page and JSON API. | M1 | #6, #37, #42 | stub | Mac, Windows, Linux |
+| `workstation/service/app.py` | Local HTTP service, page/CSRF bootstrap, JSON jobs, SSE replay and cooperative cancellation (#6). Domain routes #37/#42 to come. | M1 | #6, #37, #42 | present | Mac, Windows, Linux |
 | `workstation/web/` | Mission Control page: `index.html`, `styles.css`, `app.js`, no build step. | M2, P2, M3, R2 | #38, #5, #7, #8, #40, #41, #42, #46 | stub | browsers on Mac, Windows, Linux |
 | `tests/workstation/test_skeleton.py` | Imports every module, checks the page files and the estimator CLI. | - | - | present | Mac, Windows, Linux |
 | `workstation/redact.py` | A pure function that returns a copy of any JSON-like data with credentials, private prompts and personal home paths taken out. Recipe export, manifests and copied diagnostics all use it. | R1 | #15 | stub | Mac, Windows, Linux |
@@ -90,6 +90,22 @@ The `workstation/` package (Python 3.10+, standard library only at run time) and
 | `docs/workstation/host-runs/` | Dated records of host runs. | 1.0 | #47 | planned | Linux |
 
 Tests mirror the package: `tests/workstation/<area>/test_<module>.py`. Prove it with `python -m pytest -q` and `python -m ruff check workstation tests`; CI runs both on ubuntu, windows and macos.
+
+The service can be embedded with `create_server(runtime=..., port=0)` and run
+in a thread with `serve_forever()`, then stopped with `shutdown()` and
+`server_close()`. The CLI demo is `python -m workstation serve --fake`.
+Other bind addresses require `--allow-lan`; additional accepted Host/Origin
+names require `--allowed-host`. Binding does not expand the host allowlist.
+The first page includes a `meta[name="csrf-token"]`; mutation requests send
+its content in `X-CSRF-Token`. `POST /api/operations` with
+`{"kind":"devices"}` returns HTTP 202 and `{"id":"op-..."}` immediately.
+`GET /api/operations/<id>` returns the job and its result;
+`GET /api/operations/events` streams registry events as SSE with sequence ids
+(resume using `Last-Event-ID` or `?since=N`).
+`POST /api/operations/<id>/cancel` cancels queued jobs or asks running jobs to
+stop at their next checkpoint. Embedded job handlers receive `JobContext`
+and call `check_cancelled()` or `progress()` between bounded steps; an
+in-flight runtime call must return before cancellation can be acknowledged.
 
 After 1.0, not mapped yet: tournaments (#9, #10) and cluster (#11 to #13).
 
