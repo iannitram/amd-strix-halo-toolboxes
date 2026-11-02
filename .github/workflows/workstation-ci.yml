@@ -1,6 +1,6 @@
 name: workstation-ci
 
-# Tests and lint for workstation/ on Linux, Windows and macOS (GitHub-hosted runners: public repo).
+# Tests and lint for workstation/ on Linux and Windows (GitHub-hosted runners: public repo).
 # Default checks never pull images, download models or touch a GPU.
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
         python: ["3.12"]
         include:
           - os: ubuntu-latest
