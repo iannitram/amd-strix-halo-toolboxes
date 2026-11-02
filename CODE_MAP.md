@@ -83,7 +83,7 @@ The `workstation/` package (Python 3.10+, standard library only at run time) and
 | `workstation/service/operations.py` | Keep each long job's id, state, progress and events, and let the page cancel it. | M1 | #36 | stub | Mac, Windows, Linux |
 | `workstation/web/index.html` | The page shell every view sits in: navigation, colour and spacing tokens for light and dark, and shared loading, empty, error and success states. No build step. | M2 | #38 | stub | Mac, Windows, Linux |
 | `workstation/connections/snippets.py` | Copyable env, curl and Python settings for a coding client, with the key's variable name and never its value. | M3 | #43 | stub | Mac, Windows, Linux |
-| `workstation/connections/check.py` | Check that a client can list models and get a short completion from the endpoint, and say which step failed. | M3 | #44 | stub | Mac, Windows, Linux |
+| `workstation/connections/check.py` | Check that a client can list models and get a short completion from the endpoint, and say which step failed. | M3 | #44 | present | Mac, Windows, Linux |
 | `workstation/connections/endpoint.py` | One fixed local port that always forwards to whichever recipe is active, so a client keeps its settings across updates. | M3 | #45 | stub | Mac, Windows, Linux |
 | `docs/adr/0001-cockpit-boundary.md` | Cockpit boundary decision. | M1 | #33 | planned | - |
 | `tests/browser/` | Playwright journeys in Chromium, Firefox and WebKit. | M2 | #39 | planned | Mac, Windows, Linux |
