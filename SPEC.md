@@ -124,6 +124,10 @@ Acceptance: fake-node tests cover mismatches, slow links, insufficient memory, t
 
 This update does not ship a new interface, run benchmarks, change host settings, publish images or modify upstream Cockpit. Implementation must decide its browser/service packaging and versioned Cockpit adapter under M1. Do not declare that proposed service/modules already exist. Boot tuning, closed-source engine qualification, NPU support and universal client compatibility are outside this initial scope.
 
+### Licence status (owner ruling, 2026-11-01)
+
+The upstream project, kyuz0/amd-strix-halo-toolboxes, has no licence file. The owner has asked upstream to add one: https://github.com/kyuz0/amd-strix-halo-toolboxes/issues/141. Until upstream answers, nothing from this repository is offered upstream or redistributed, including images, packages and release artefacts.
+
 ## 11. Build traceability
 
 | Capability | Issues |
