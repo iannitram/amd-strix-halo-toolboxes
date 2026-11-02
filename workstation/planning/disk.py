@@ -2,6 +2,7 @@
 
 import math
 import re
+from fractions import Fraction
 
 
 _SHARD_NAME = re.compile(r"^(?P<stem>.+)-(?P<index>[0-9]{5})-of-(?P<count>[0-9]{5})\.gguf$")
@@ -47,7 +48,8 @@ def plan_disk(files, *, temp_factor=0.0, cache_bytes=0, free_bytes=None) -> dict
 
     if cache_bytes < 0 or temp_factor < 0:
         raise ValueError("sizes must be >= 0")
-    temp_bytes = math.ceil(download_bytes * temp_factor)
+    # Exact decimal arithmetic: a float product such as 25 * 0.28 lands just above 7.
+    temp_bytes = math.ceil(download_bytes * Fraction(str(temp_factor)))
     required_bytes = download_bytes + temp_bytes + cache_bytes
     if free_bytes is None:
         fits, status = None, "unknown"
