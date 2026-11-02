@@ -64,4 +64,5 @@ def test_default_version_calls_are_linux_only_on_live_root(monkeypatch):
     monkeypatch.setattr(module.platform, "system", lambda: "Windows")
     result = take_snapshot(root="/")
     assert result["versions"] == {"toolbox": None, "podman": None}
-    assert all("versions." in failure["field"] for failure in result["collection_failures"])
+    fields = {failure["field"] for failure in result["collection_failures"]}
+    assert {"versions.toolbox", "versions.podman"} <= fields

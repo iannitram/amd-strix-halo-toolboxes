@@ -26,8 +26,11 @@ def _read(path: Path, failures: list, label: str) -> str | None:
 
 
 def _rooted(root: Path, path) -> Path:
-    candidate = Path(path)
-    return root / str(candidate).lstrip("/") if candidate.is_absolute() else root / candidate
+    # Handle "/x" as rooted on every OS: pathlib on Windows does not treat "/x" as absolute.
+    text = str(path).replace("\\", "/")
+    if text.startswith("/"):
+        return root.joinpath(*[part for part in text.split("/") if part])
+    return root / text
 
 
 def _version(tool: str, runner, failures: list):
