@@ -1,33 +1,40 @@
 # ADR 0001: Cockpit boundary
 
-**Status: Proposed, needs the owner's decision**
+**Status: Accepted (owner's decision, 2026-11-02): drive Cockpit through a narrow adapter**
 
 ## Context
 
-Mission Control is planned to run through the workstation's local service and `RuntimePort` on the Linux Strix Halo host. `RuntimePort` exists as a protocol; the local service, the Podman adapter and the Mission Control page are not built yet (CODE_MAP lists them as stubs). The spec also assigns the toolbox catalog, backend validation and command generation to Cockpit, but the repository records no public stable runtime API and says Cockpit has no licence. The workstation runtime and its recipes must remain testable without a Cockpit process.
+Mission Control is planned to run through the workstation's local service on the Linux Strix Halo host. `RuntimePort` exists as a protocol; the local service, the runtime adapters and the Mission Control page are not built yet (CODE_MAP lists them as stubs). SPEC.md gives the toolbox catalog, backend validation, runtime and command building to Cockpit, and says the browser companion must reach those through a narrow versioned adapter, without copying launcher logic into a second source of truth. Cockpit has no licence file and no published stable API. The workstation and its recipes must stay testable without a Cockpit process.
 
 ## Options
 
-1. **Drive Cockpit.** Automate its interface or depend on its internal modules. This couples host operations to an interface or implementation that this repository does not identify as a stable contract.
-2. **Call Podman through `RuntimePort`.** Let the workstation service own lifecycle operations through its runtime port. Define and version the catalog, validation and command-building boundary needed by the workstation, without importing Cockpit code.
-3. **Wait for an agreed Cockpit integration.** Do not implement the real runtime until Cockpit offers a supported contract or the owner approves a companion integration strategy.
+1. **Drive Cockpit.** The workstation calls Cockpit's own catalog, validation and command builders, and lets it launch toolboxes.
+2. **Call Podman through `RuntimePort`.** The workstation owns its own catalog and command building, and Cockpit is used for ideas only.
+3. **Wait for an agreed Cockpit integration.** Build no real runtime until Cockpit offers a supported contract.
 
 ## Decision
 
-Recommend option 2 for container and server lifecycle: the service calls Podman via `RuntimePort`, and Mission Control does not drive Cockpit's UI or private internals. Cockpit's launch-and-monitor workflow and curated toolbox selection are ideas only; this ADR copies no Cockpit code or text.
+Option 1. The owner chose to drive Cockpit. Cockpit stays the single source of truth for the toolbox catalog, backend validation and launch commands, as SPEC.md already says.
 
-This also means workstation-owned catalog and backend command semantics would replace responsibilities the spec currently assigns to Cockpit. That changes the documented integration boundary. Therefore this ADR is **proposed**, not accepted, and #34 must wait for the owner to decide whether that standalone boundary is acceptable or whether implementation must wait for an agreed Cockpit/companion contract.
+How it is done:
+
+- **One adapter.** All Cockpit access goes through one workstation port (a `CockpitPort` beside `RuntimePort`). The real adapter is the only code that knows Cockpit's module names, catalog file or command-line surface. Everything else sees plain data: the catalog entries, a validation result, and a command to run.
+- **No copied code.** Cockpit has no licence, so its code is never copied, vendored or redistributed here (SPEC.md: "no copy of its code while it has no licence"). The adapter calls a Cockpit the user has installed separately. It does not bundle one.
+- **Pinned version.** The adapter records the adapter version and the Cockpit version it supports. On any other Cockpit version it reports "unsupported Cockpit version" and does not guess.
+- **Testable without Cockpit.** Default tests use a fake `CockpitPort`. Tests of the real adapter are Linux-only and opt-in.
+- **No upstream changes.** Cockpit is not modified. If the adapter needs something Cockpit does not offer, that becomes an issue for the owner to raise upstream, not a patch.
 
 ## Toolbox name compatibility
 
-Keep toolbox identities and image references compatible with the names already recorded for Cockpit: retain the `strix-halo-llama-<backend>-<version>` ID form (for example, `strix-halo-llama-rocm-10-0`) and the corresponding image tag (for example, `rocm-10.0`). Treat the stable ID, full image reference and resolved digest as separate recipe data; a display-name or tag change must not silently create a new identity or rewrite an existing recipe. When toolbox entries change, follow `COCKPIT_UPDATE_WORKFLOW.md`'s inventory and synchronization guidance. This is a compatibility convention, not a Cockpit API dependency.
+Keep the `strix-halo-llama-<backend>-<version>` ID form (for example, `strix-halo-llama-rocm-10-0`) and the matching image tag (for example, `rocm-10.0`). The stable ID, full image reference and resolved digest are separate recipe data. A display-name or tag change must not quietly create a new identity or rewrite an existing recipe. When toolbox entries change, follow `COCKPIT_UPDATE_WORKFLOW.md`.
 
 ## Consequences
 
-- Runtime lifecycle remains behind the `RuntimePort`; default checks can use its fake implementation, while the real adapter is Linux-only.
-- A versioned workstation-owned catalog/command contract and backend-specific validation would need to be specified before implementation. Cockpit does not become a dependency or source of executable code.
-- Cockpit catalog changes are not automatic. If coordinated updates are later authorized, the existing toolbox update workflow describes the names and surfaces to keep aligned.
+- #34 can start. It builds the `CockpitPort` interface, a fake, and the real adapter for one pinned Cockpit version.
+- Cockpit's internals are not a stable contract, so a Cockpit update can break the adapter. The version pin turns that into a clear "unsupported version" error, not wrong behaviour. Moving to a new Cockpit version is a deliberate adapter update.
+- M1 must still record, before depending on it: the adapter version, the supported Cockpit version, how Cockpit is installed (separately, by the user), and who owns the companion (SPEC.md, M1).
+- Backend differences stay explicit (GGUF, HF, sidecars, context, vision, distributed). The adapter passes them through and does not merge them.
 
 ## Revisit when
 
-Revisit if Cockpit publishes a licensed, stable, documented runtime/catalog contract; the owner approves a companion integration with an explicit version and ownership model; or the workstation cannot preserve required backend behavior and toolbox identity through its own adapter. Any change to the accepted spec requires the owner's approval.
+Revisit if Cockpit adds a licence (copying or deeper integration may then be allowed), publishes a stable API (switch the adapter to it), or changes often enough that keeping the adapter working costs more than option 2.
