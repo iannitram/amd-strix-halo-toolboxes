@@ -1,5 +1,6 @@
 """Label each number as estimated, measured, stale or unknown (P1). Planned: #29."""
 
+import re
 from datetime import datetime, timezone
 
 LABELS = ("estimated", "measured", "stale", "unknown")
@@ -21,6 +22,9 @@ def label_value(value, *, source, observed_at=None, now=None, stale_after_s=300)
     def parse_time(timestamp):
         if timestamp.endswith("Z"):
             timestamp = f"{timestamp[:-1]}+00:00"
+        # Python 3.10 parses fractional seconds only with exactly 3 or 6 digits; pad to 6.
+        timestamp = re.sub(r"\.(\d+)", lambda m: "." + m.group(1).ljust(6, "0")[:6],
+                           timestamp, count=1)
         parsed = datetime.fromisoformat(timestamp)
         if parsed.tzinfo is None:
             parsed = parsed.replace(tzinfo=timezone.utc)
