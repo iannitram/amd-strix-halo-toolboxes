@@ -81,6 +81,8 @@ def take_snapshot(*, root="/", model_dir=None, clock=None, version_runner=None) 
     device_dir = _rooted(root_path, "/dev")
     devices = None
     try:
+        if not device_dir.is_dir():
+            raise OSError(f"{device_dir} is not a readable directory")
         nodes = []
         dri = device_dir / "dri"
         if dri.is_dir():

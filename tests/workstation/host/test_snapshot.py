@@ -1,4 +1,7 @@
+import platform
 from pathlib import Path
+
+import pytest
 
 from workstation.host.snapshot import take_snapshot
 
@@ -49,11 +52,12 @@ def test_missing_files_and_version_failures_are_partial(tmp_path):
 
     assert result["kernel"] is None
     assert result["firmware"] is None
+    assert result["gpu_device_nodes"] is None
     assert result["memory"] == {"total_bytes": None, "free_bytes": None}
     assert result["disk_free_bytes"] is None
     assert result["versions"] == {"toolbox": None, "podman": None}
     assert {failure["field"] for failure in result["collection_failures"]} >= {
-        "kernel", "firmware", "memory", "memory.total_bytes", "disk_free_bytes",
+        "kernel", "firmware", "devices", "memory", "memory.total_bytes", "disk_free_bytes",
         "versions.toolbox", "versions.podman",
     }
 
@@ -66,3 +70,12 @@ def test_default_version_calls_are_linux_only_on_live_root(monkeypatch):
     assert result["versions"] == {"toolbox": None, "podman": None}
     fields = {failure["field"] for failure in result["collection_failures"]}
     assert {"versions.toolbox", "versions.podman"} <= fields
+
+
+@pytest.mark.skipif(platform.system() != "Linux", reason="the real host read is Linux only")
+def test_real_linux_host_read():
+    result = take_snapshot()
+    assert result["kernel"]
+    assert result["memory"]["total_bytes"]
+    assert isinstance(result["gpu_device_nodes"], list)
+    assert result["disk_free_bytes"] is not None
