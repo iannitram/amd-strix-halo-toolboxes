@@ -85,3 +85,32 @@ def test_truncated_and_oversized_files_raise_clean_errors(tmp_path):
         read_local(truncated)
     with pytest.raises(ValueError, match="past the end of the file"):
         read_local(oversized)
+
+
+def test_wrong_typed_name_and_unknown_value_types_raise_value_error(tmp_path):
+    header = struct.pack("<IIQQ", 0x46554747, 3, 0, 1)
+    wrong_name = tmp_path / "wrong-name.gguf"
+    wrong_name.write_bytes(
+        struct.pack("<IIQQ", 0x46554747, 3, 0, 2)
+        + _string("general.architecture") + struct.pack("<I", 8) + _string("llama")
+        + _string("general.name") + struct.pack("<II", 4, 5)
+    )
+    unknown = tmp_path / "unknown-type.gguf"
+    unknown.write_bytes(header + _string("x") + struct.pack("<I", 99))
+
+    with pytest.raises(ValueError, match="strings"):
+        read_local(wrong_name)
+    with pytest.raises(ValueError, match="unknown GGUF value type"):
+        read_local(unknown)
+
+
+def test_skips_64bit_values_before_the_fields_it_reads(tmp_path):
+    model = tmp_path / "wide.gguf"
+    model.write_bytes(
+        struct.pack("<IIQQ", 0x46554747, 3, 0, 3)
+        + _string("general.size") + struct.pack("<IQ", 10, 2**40)
+        + _string("general.architecture") + struct.pack("<I", 8) + _string("llama")
+        + _string("llama.block_count") + struct.pack("<II", 4, 7)
+    )
+
+    assert read_local(model)["n_layers"] == 7

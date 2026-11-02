@@ -37,6 +37,15 @@ def _bounded_reader(estimator):
                 raise ValueError("GGUF string runs past the end of the file")
             return self.f.read(length).decode("utf-8", errors="replace")
 
+        def _skip_value(self, value_type_idx: int):
+            # The estimator ignores 64-bit types and silently misreads past unknown ones.
+            if value_type_idx in (10, 11, 12):
+                self.f.seek(8, 1)
+            elif value_type_idx not in range(10):
+                raise ValueError(f"unknown GGUF value type {value_type_idx}")
+            else:
+                super()._skip_value(value_type_idx)
+
     return BoundedReader
 
 
@@ -66,6 +75,9 @@ def read_local(path) -> dict:
             raise ValueError(f"Malformed or truncated GGUF file {shard}: {exc}") from exc
 
     architecture = metadata.get("general.architecture")
+    name = metadata.get("general.name", "")
+    if not isinstance(architecture, (str, type(None))) or not isinstance(name, str):
+        raise ValueError(f"Malformed GGUF file {model_path}: architecture and name must be strings")
     prefix = f"{architecture}." if architecture else None
 
     def field(suffix):
@@ -77,7 +89,7 @@ def read_local(path) -> dict:
     # Match the estimator's known Scout fallback and ordinary sliding-window rules.
     if sliding_window:
         sliding_layers, full_layers = n_layers, 0
-    elif "scout" in metadata.get("general.name", "").lower():
+    elif "scout" in name.lower():
         sliding_layers, full_layers, sliding_window = 36, 12, 8192
     elif n_layers is not None:
         sliding_layers, full_layers = 0, n_layers
