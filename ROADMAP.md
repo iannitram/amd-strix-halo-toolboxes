@@ -68,7 +68,7 @@ Parent issues ([#1](https://github.com/iannitram/amd-strix-halo-toolboxes/issues
 | R3 | [#3](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/3) qualification runner and reproduction manifest | Medium | wiring | Mac, Windows, Linux | #25, #26, #22, #32, #15 | Planned |
 | P1 | [#30](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/30) structured metadata from local GGUF files | Medium | data-shape | Mac, Windows, Linux | nothing | Planned |
 | P1 | [#31](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/31) metadata before download | Medium | data-shape | Mac, Windows, Linux | #30 | Planned |
-| P1 | [#4](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/4) planner and supported alternatives | Medium | pure-fn | Mac, Windows, Linux | #27, #28, #29, #30 | Planned |
+| P1 | [#4](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/4) planner and supported alternatives | Medium | pure-fn | Mac, Windows, Linux | #27, #28, #29, #30 | Implemented (fixture tests; host evidence: #47) |
 | M1 | [#6](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/6) local service | Medium | wiring | Mac, Windows, Linux | #35, #36, #22 | Planned |
 | M1 | [#37](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/37) service routes for recipes, plans and updates | Medium | wiring | Mac, Windows, Linux | #6, #1, #2, #4 | Planned |
 | M2 | [#38](https://github.com/iannitram/amd-strix-halo-toolboxes/issues/38) page shell, tokens and state components | Medium | ui | Mac, Windows, Linux | #6 | Planned |

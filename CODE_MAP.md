@@ -57,7 +57,7 @@ The `workstation/` package (Python 3.10+, standard library only at run time) and
 | `workstation/updates/transaction.py` | Stage, promote and restore. | R2 | #2 | stub | Mac, Windows, Linux |
 | `workstation/qualification/runner.py` | Run the checks and decide. | R3 | #3 | stub | Mac, Windows, Linux |
 | `workstation/qualification/manifest.py` | Redacted reproduction manifest. | R3 | #3 | stub | Mac, Windows, Linux |
-| `workstation/planning/planner.py` | One explained plan and supported alternatives. | P1 | #4 | stub | Mac, Windows, Linux |
+| `workstation/planning/planner.py` | One explained plan and supported alternatives. | P1 | #4 | present | Mac, Windows, Linux |
 | `workstation/service/app.py` | Local HTTP service, page and JSON API. | M1 | #6, #37, #42 | stub | Mac, Windows, Linux |
 | `workstation/web/` | Mission Control page: `index.html`, `styles.css`, `app.js`, no build step. | M2, P2, M3, R2 | #38, #5, #7, #8, #40, #41, #42, #46 | stub | browsers on Mac, Windows, Linux |
 | `tests/workstation/test_skeleton.py` | Imports every module, checks the page files and the estimator CLI. | - | - | present | Mac, Windows, Linux |
