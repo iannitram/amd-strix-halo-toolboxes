@@ -77,7 +77,7 @@ The `workstation/` package (Python 3.10+, standard library only at run time) and
 | `workstation/planning/labels.py` | Label each number the planner shows, so the page can say how sure it is. | P1 | #29 | stub | Mac, Windows, Linux |
 | `workstation/planning/gguf_meta.py` | Read a local GGUF file's architecture, layer, head and size metadata as a dict, reusing `toolboxes/gguf-vram-estimator.py` without changing its command line. | P1 | #30 | stub | Mac, Windows, Linux |
 | `workstation/planning/remote_meta.py` | Read a remote GGUF file's header with HTTP range requests, so Will it fit? can answer before anything is downloaded. | P1 | #31 | stub | Mac, Windows, Linux |
-| `workstation/host/snapshot.py` | Record the host facts that matter for a recipe: kernel, firmware, GPU device nodes, memory total and free, disk free, and toolbox and podman versions. | R3 | #32 | stub | Linux |
+| `workstation/host/snapshot.py` | Record the host facts that matter for a recipe: kernel, firmware, GPU device nodes, memory total and free, disk free, and toolbox and podman versions. | R3 | #32 | present | Linux |
 | `workstation/runtime/podman.py` | The real `RuntimePort`: pull images, create and remove toolbox containers, start and stop llama-server, and read its health, with `/dev/kfd` and `/dev/dri` passed through. | M1 | #34 | stub | Linux |
 | `workstation/service/security.py` | Check each request's Host, Origin, Sec-Fetch-Site and CSRF token, so another web site or host name cannot drive the service. | M1 | #35 | stub | Mac, Windows, Linux |
 | `workstation/service/operations.py` | Keep each long job's id, state, progress and events, and let the page cancel it. | M1 | #36 | stub | Mac, Windows, Linux |
