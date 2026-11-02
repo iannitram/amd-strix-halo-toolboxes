@@ -4,7 +4,7 @@
 
 ## Context
 
-Mission Control runs through the workstation's local service and `RuntimePort` on the Linux Strix Halo host. The spec also assigns the toolbox catalog, backend validation and command generation to Cockpit, but the repository records no public stable runtime API and says Cockpit has no licence. The workstation runtime and its recipes must remain testable without a Cockpit process.
+Mission Control is planned to run through the workstation's local service and `RuntimePort` on the Linux Strix Halo host. `RuntimePort` exists as a protocol; the local service, the Podman adapter and the Mission Control page are not built yet (CODE_MAP lists them as stubs). The spec also assigns the toolbox catalog, backend validation and command generation to Cockpit, but the repository records no public stable runtime API and says Cockpit has no licence. The workstation runtime and its recipes must remain testable without a Cockpit process.
 
 ## Options
 
