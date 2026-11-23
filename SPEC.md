@@ -41,23 +41,7 @@ Things 1.0 will not do, so nobody builds them by accident.
 
 ## Prior art
 
-Projects doing the same thing, approved by me at Spec on 2026-11-02 ("Approve all 15 (Recommended)") and reviewed weekly. Their code comes in only when their license allows it, with credit; otherwise only their ideas. The ones with no licence file give ideas only: no code copied.
-
-peer: kyuz0/ai-toolbox-cockpit | no licence file | the upstream we build on; its launch and monitoring UI is the base Mission Control grows from (ideas only until it has a licence)
-peer: kyuz0/amd-strix-halo-toolboxes | no licence file | our fork's parent; track its gfx1151 Vulkan/ROCm image tags so Time Machine recipes can pin them
-peer: mostlygeek/llama-swap | MIT | YAML model registry with hot-swap behind one OpenAI endpoint; closest model for recipes plus a launch/watch page
-peer: gpustack/gguf-parser-go | MIT | estimates VRAM/RAM from GGUF headers without downloading the file: the core technique for Will it fit?
-peer: gpustack/gpustack | Apache-2.0 | GPU cluster manager with resource-fit scheduling and a web dashboard
-peer: lemonade-sdk/lemonade | Apache-2.0 | AMD's local LLM server for Ryzen AI with Vulkan/ROCm llama.cpp and a model manager UI: the nearest Strix Halo rival
-peer: containers/ramalama | MIT | models as OCI artifacts in pinned GPU containers: prior art for recipes and rollback
-peer: exo-explore/exo | Apache-2.0 | splits a model across machines with peer discovery; reference for post-1.0 clustering
-peer: ggml-org/llama.cpp | MIT | the engine; rpc-server and llama-bench underlie clustering and tournaments
-peer: b4rtaz/distributed-llama | MIT | tensor-parallel inference over Ethernet; network limits and setup UX of home clusters
-peer: kyuz0/amd-strix-halo-vllm-toolboxes | no licence file | kyuz0's vLLM toolboxes for gfx1151: a second backend (ideas only)
-peer: ollama/ollama | MIT | Modelfile and digest-pinned model store: reproducible recipes and simple pull-and-run
-peer: janhq/jan | NOASSERTION | open LM Studio alternative with fit hints in its model hub: pick-and-launch UX
-peer: cjpais/LocalScore | Apache-2.0 | standard local-LLM benchmark with a results board: template for tournaments
-peer: kyuz0/pi-bench | no licence file | kyuz0's benchmark harness; likely start for tournaments (ideas only)
+The upstream and the peer list are in [`PEERS.md`](PEERS.md) at the repo root.
 
 ## Fork delta (R18)
 
